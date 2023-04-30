@@ -57,3 +57,26 @@ vpc = {
     }
   }
 }
+
+# if databse has to be created for every component separately, below is the answer
+docdb = {
+  docdb-catalogue = {
+    engine = 4.0
+  }
+
+  docdb-user = {
+    engine = 4.0
+  }
+}
+
+# going with only one docdb_database for all the components, as we are in DEV_Environment
+docdb = {
+  main = {
+    engine = "docdb"
+    backup_retention_period = 2
+    preferred_backup_window = "07:00-09:00"
+    skip_final_snapshot     = true
+
+    engine_version = "4.0.0"
+  }
+}

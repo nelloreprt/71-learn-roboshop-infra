@@ -11,6 +11,5 @@ tags = {
 }
 
 # along with default VPC, default Route Table is required
-#
 default_vpc_id = "vpc-asdf1a135a1sdf31a3"
 default_route_table = "rtb-asda45a4f34afds65"
