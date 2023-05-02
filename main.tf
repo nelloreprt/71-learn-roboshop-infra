@@ -76,8 +76,50 @@ module "rabbitmq" {
   tags = var.tags
 
   subnet_ids = local.db_subnet_ids
+  # all the databases don't have any different subnets, it is always the same subnets
 
   for_each = var.rabbitmq
   instance_type    = each.value.instance_type
 
 }
+
+module "alb" {
+  source = github.com/nelloreprt/71-tf-module-alb.git
+  env = var.env
+  tags = var.tags
+
+  subnet_ids = lookup(local.subnet_ids, each.value.subnet_name, null)
+
+  # as we are using for_each loop >> we have to go with " each.value.subnet_name "
+  # and this "subnet_name" should come as a input from " main.tfvars "
+
+  # lookup(local.subnet_ids, app, null)
+  # lookup function will look for app_value in local.subnet_ids, if no value it will return as "null"
+
+  # lookup(local.subnet_ids, web, null)
+  # lookup function will look for web_value in local.subnet_ids, if no value it will return as "null"
+
+  for_each = var.alb
+  name               = each.value.name
+  internal           = each.value.internal
+  load_balancer_type = each.value.load_balancer_type
+  enable_deletion_protection = each.value.enable_deletion_protection
+
+}
+
+module "app" {
+  source = github.com/nelloreprt/71-tf-module-app.git
+  env = var.env
+  tags = var.tags
+
+  subnet_ids = lookup(local.subnet_ids, each.value.subnet_name, null)
+
+  for_each = var.app
+  instance_type    = each.value.instance_type
+  component = each.value.component
+  desired_capacity = each.value.desired_capacity
+  max_size = each.value.max_size
+  min_size = each.value.min_size
+
+}
+

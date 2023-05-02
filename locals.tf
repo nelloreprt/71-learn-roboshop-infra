@@ -11,9 +11,19 @@ locals {
   db_subnet_ids =  tolist([ "module.vpc["main"].private_subnets["db-az1"].id" , "module.vpc["main"].private_subnets["db-az1"].id" ])
   web_subnet_ids =  tolist([ "module.vpc["main"].private_subnets["web-az1"].id" , "module.vpc["main"].private_subnets["web-az1"].id" ])
   app_subnet_ids =  tolist([ "module.vpc["main"].private_subnets["app-az1"].id" , "module.vpc["main"].private_subnets["app-az1"].id" ])
+
+  subnet_ids = {
+    db = tolist([ "module.vpc["main"].private_subnets["db-az1"].id" , "module.vpc["main"].private_subnets["db-az1"].id" ])
+    web = tolist([ "module.vpc["main"].private_subnets["web-az1"].id" , "module.vpc["main"].private_subnets["web-az1"].id" ])
+    app = tolist([ "module.vpc["main"].private_subnets["app-az1"].id" , "module.vpc["main"].private_subnets["app-az1"].id" ])
+  }
 }
 
 # note: based on below output of vpc_module, to understand the output and then, Locals is designed
 # output "vpc" {
 #  value = module.vpc
 # }
+# /////////////////////////////////////////////////////////////
+
+# to Public_alb >> we want to attach web_subnet_ids (web_subnet_ids is Pvt_Subnets)
+# to Private_alb >> we want to attach app_subnet_ids (app_subnet_ids is Pvt_Subnets)
