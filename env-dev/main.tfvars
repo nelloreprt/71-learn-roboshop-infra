@@ -1,5 +1,11 @@
 env = "dev"
 
+bastion_cidr = ["172.168.0.1/32"]
+# 172.168.0.1 >> this is the pvt_ip address of workstation/bastion
+# we are adding /32 >> meaning >> one single_ip
+# /24 >> 256 ips
+# /16 >> 65,000 ips
+
 vpc = {
   main = {
     vpc_cidr = "10.0.0.0/16"
@@ -114,7 +120,7 @@ rabbitmq = {
 
 alb = {
   public = {
-    subnet_name = "web"
+    subnet_name = "public"
     name               = "public"
     internal           = false
     load_balancer_type = "application"
@@ -133,29 +139,35 @@ alb = {
 app = {
   catalogue = {
     component = catalogue
-    instance_type = "t3.nano"
+    instance_type = "t3.micro"
     desired_capacity   = 1
     max_size           = 1
     min_size           = 1
     subnet_name = "app"
+    port = 8080
+    allow_app_to = "app"  # subnet_id refered with name using locals
   }
 
   cart = {
     component = cart
-    instance_type = "t3.nano"
+    instance_type = "t3.micro"
     desired_capacity   = 1
     max_size           = 1
     min_size           = 1
     subnet_name = "app"
+    port = 8080
+    allow_app_to = "app"
   }
 
   user = {
     component = user
-    instance_type = "t3.nano"
+    instance_type = "t3.micro"
     desired_capacity   = 1
     max_size           = 1
     min_size           = 1
     subnet_name = "app"
+    port = 8080
+    allow_app_to = "app"
   }
 
   payment = {
@@ -165,6 +177,8 @@ app = {
     max_size           = 1
     min_size           = 1
     subnet_name = "app"
+    port = 8080
+    allow_app_to = "app"
   }
 
   shipping = {
@@ -174,16 +188,21 @@ app = {
     max_size           = 1
     min_size           = 1
     subnet_name = "app"
+    port = 8080
+    allow_app_to = "app"
   }
 
   # frontend needs web_subnet
   frontend = {
     component = frontend
-    instance_type = "t3.nano"
+    instance_type = "t3.micro"
     desired_capacity   = 1
     max_size           = 1
     min_size           = 1
     subnet_name = "web"
+    port = 8080
+    allow_app_to = "public" # subnet_type , which subnet we want to allow
+# public_subnet shall access the frontend sitting in web_subnet
   }
 
 }

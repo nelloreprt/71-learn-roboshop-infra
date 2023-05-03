@@ -89,7 +89,7 @@ module "alb" {
   tags = var.tags
 
   subnet_ids = lookup(local.subnet_ids, each.value.subnet_name, null)
-
+  # local + for_each iteration + lookup
   # as we are using for_each loop >> we have to go with " each.value.subnet_name "
   # and this "subnet_name" should come as a input from " main.tfvars "
 
@@ -121,5 +121,12 @@ module "app" {
   max_size = each.value.max_size
   min_size = each.value.min_size
 
+  vpc_id = module.vpc["main"].vpc_id
+  bastion_cidr = var.bastion_cidr
+
+  port = each.value.port
+
+  # we want cidr number not subnet_id
+  allow_app_to = lookup(local.subnet_cidr, each.value.allow_app_to, null)
 }
 
