@@ -6,6 +6,8 @@ bastion_cidr = ["172.168.0.1/32"]
 # /24 >> 256 ips
 # /16 >> 65,000 ips
 
+dns_domain = "nellore.online"
+
 vpc = {
   main = {
     vpc_cidr = "10.0.0.0/16"
@@ -125,6 +127,9 @@ alb = {
     internal           = false
     load_balancer_type = "application"
     enable_deletion_protection = false
+    allow_cidr = ["0.0.0.0./0"]  # allowing outside web traffic in
+    # who is allowed to access the public Load balancer
+    # as we are giving 0.0.0.0/0 >> both outside web traffic + web_subnets
   }
 
   private = {
@@ -133,6 +138,9 @@ alb = {
     internal           = true
     load_balancer_type = "application"
     enable_deletion_protection = false
+    allow_cidr = ["10.0.2.0/24" , "10.0.3.0/24" , "10.0.4.0/24" , "10.0.5.0/24" ]  #
+    # who is allowed to access the private Load balancer / application LB
+    both app_subnets + web_subnets
   }
 }
 
@@ -146,6 +154,8 @@ app = {
     subnet_name = "app"
     port = 8080
     allow_app_to = "app"  # subnet_id refered with name using locals
+    alb = "private"
+    listener_priority = 10
   }
 
   cart = {
@@ -157,6 +167,8 @@ app = {
     subnet_name = "app"
     port = 8080
     allow_app_to = "app"
+    alb = "private"
+    listener_priority = 11
   }
 
   user = {
@@ -168,6 +180,8 @@ app = {
     subnet_name = "app"
     port = 8080
     allow_app_to = "app"
+    alb = "private"
+    listener_priority = 12
   }
 
   payment = {
@@ -179,6 +193,8 @@ app = {
     subnet_name = "app"
     port = 8080
     allow_app_to = "app"
+    alb = "private"
+    listener_priority = 13
   }
 
   shipping = {
@@ -190,6 +206,8 @@ app = {
     subnet_name = "app"
     port = 8080
     allow_app_to = "app"
+    alb = "private"
+    listener_priority = 14
   }
 
   # frontend needs web_subnet
@@ -203,6 +221,10 @@ app = {
     port = 8080
     allow_app_to = "public" # subnet_type , which subnet we want to allow
 # public_subnet shall access the frontend sitting in web_subnet
+
+    alb = "public"  # which alb to choose?
+
+    listener_priority = 10
   }
 
 }

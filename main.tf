@@ -105,6 +105,10 @@ module "alb" {
   load_balancer_type = each.value.load_balancer_type
   enable_deletion_protection = each.value.enable_deletion_protection
 
+  vpc_id = module.vpc["main"].vpc_id     # output block of entire VPC is considered for syntax
+# Synyax >> module.module_name.output_block_name
+
+  allow_cidr = each.value.allow_cidr
 }
 
 module "app" {
@@ -128,5 +132,16 @@ module "app" {
 
   # we want cidr number not subnet_id
   allow_app_to = lookup(local.subnet_cidr, each.value.allow_app_to, null)
+
+  alb_dns_domain = lookup(lookup(lookup(module.alb, each.value.alb, null) "alb", null) "dns_name" ,null) #  each.value.alb >> will come as input from main.tfvars
+
+  listener_arn = lookup(lookup(lookup(module.alb, each.value.alb, null) "listener", null) "arn" ,null)
+
+  listener_priority = each.value.listener_priority
+}
+
+# value for >> " alb_dns_domain " >> is formulated using
+output "alb" {
+  value = "module.alb"
 }
 
