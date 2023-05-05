@@ -29,6 +29,10 @@ module "docdb" {
 
   no_of_instances = each.value.no_of_instances
   instance_class = each.value.instance_class
+  allow_subnets = lookup(local.subnet_cidr, each.value.allow_subnets, null)
+
+  vpc_id = module.vpc["main"].vpc_id     # output block of entire VPC is considered for syntax
+  # Synyax >> module.module_name.output_block_name
 }
 
 module "rds" {

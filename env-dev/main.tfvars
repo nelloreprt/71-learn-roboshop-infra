@@ -88,6 +88,7 @@ docdb = {
 
     no_of_instances = 1
     instance_class = "db.t3.medium"
+    allow_subnets = "app"  # we are allowing app_subnets, so that they can start communicating with docDB
   }
 }
 
