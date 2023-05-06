@@ -111,7 +111,7 @@ elasticache = {
     engine_version       = "6.x"
     num_cache_nodes = 1
     node_type       = "cache.t3.micro"
-
+    allow_subnets = "app"  # we are allowing app_subnets, so that they can start communicating with elasticache
   }
 }
 
@@ -157,6 +157,7 @@ app = {
     allow_app_to = "app"  # subnet_id refered with name using locals
     alb = "private"
     listener_priority = 10
+    parameters = [ "docdb" ]  # this information will be known from project by checking each and every component
   }
 
   cart = {
@@ -170,6 +171,7 @@ app = {
     allow_app_to = "app"
     alb = "private"
     listener_priority = 11
+    parameters = [ "elasticache"  ]   # this information will be known from project by checking each and every component
   }
 
   user = {
@@ -183,6 +185,7 @@ app = {
     allow_app_to = "app"
     alb = "private"
     listener_priority = 12
+    parameters = [ "docdb" , "elasticache"  ]   # this information will be known from project by checking each and every component
   }
 
   payment = {

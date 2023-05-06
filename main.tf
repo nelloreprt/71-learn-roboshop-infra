@@ -29,6 +29,7 @@ module "docdb" {
 
   no_of_instances = each.value.no_of_instances
   instance_class = each.value.instance_class
+
   allow_subnets = lookup(local.subnet_cidr, each.value.allow_subnets, null)
 
   vpc_id = module.vpc["main"].vpc_id     # output block of entire VPC is considered for syntax
@@ -71,6 +72,9 @@ module "elasticache" {
   node_type               = each.value.node_type
   num_cache_nodes = each.value.num_cache_nodes
 
+  allow_subnets = lookup(local.subnet_cidr, each.value.allow_subnets, null)
+  vpc_id = module.vpc["main"].vpc_id     # output block of entire VPC is considered for syntax
+  # Synyax >> module.module_name.output_block_name
 }
 
 
@@ -116,6 +120,8 @@ module "alb" {
 }
 
 module "app" {
+  depends_on = [module.docdb, module.elasticache, module.rabbitmq, module.rds, module.alb]
+
   source = github.com/nelloreprt/71-tf-module-app.git
   env = var.env
   tags = var.tags
@@ -142,10 +148,17 @@ module "app" {
   listener_arn = lookup(lookup(lookup(module.alb, each.value.alb, null) "listener", null) "arn" ,null)
 
   listener_priority = each.value.listener_priority
+
+  parameters = each.value.parameters  # used on locals.tf using concat_function in app-module / locals.tf
 }
 
 # value for >> " alb_dns_domain " >> is formulated using
 output "alb" {
   value = "module.alb"
+}
+
+# elasticache module output is obtained using >> because we want ENDPOINT of elasticache
+output "redis" {
+  value = "module.elasticache"
 }
 
