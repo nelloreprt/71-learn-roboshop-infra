@@ -52,6 +52,10 @@ module "rds" {
   database_name = each.value.database_name
   backup_retention_period = each.value.backup_retention_period
   preferred_backup_window = each.value.preferred_backup_window
+
+  allow_subnets = lookup(local.subnet_cidr, each.value.allow_subnets, null)
+  vpc_id = module.vpc["main"].vpc_id     # output block of entire VPC is considered for syntax
+  # Synyax >> module.module_name.output_block_name
 }
 
 #
@@ -89,6 +93,12 @@ module "rabbitmq" {
   for_each = var.rabbitmq
   instance_type    = each.value.instance_type
 
+  allow_subnets = lookup(local.subnet_cidr, each.value.allow_subnets, null)
+  vpc_id = module.vpc["main"].vpc_id     # output block of entire VPC is considered for syntax
+  # Synyax >> module.module_name.output_block_name
+
+  dns_domain = var.dns_domain
+  bastion_cidr = var.bastion_cidr
 }
 
 module "alb" {
@@ -136,6 +146,8 @@ module "app" {
   min_size = each.value.min_size
 
   vpc_id = module.vpc["main"].vpc_id
+
+  dns_domain = var.dns_domain
   bastion_cidr = var.bastion_cidr
 
   port = each.value.port
@@ -162,3 +174,7 @@ output "redis" {
   value = "module.elasticache"
 }
 
+
+
+- name: Load Schema rds-mysql
+  ansible.builtin.shell: mysql -h {{ lookup('amazon.aws.aws_ssm', '{{env}}.rds.endpoint', region='us-east-1') }} -u{{ lookup('amazon.aws.aws_ssm', '{{env}}.rds.user', region='us-east-1') }} -p{{ lookup('amazon.aws.aws_ssm', '{{env}}.rds.pass', region='us-east-1') }} < /app/schema/{{component}}.sql

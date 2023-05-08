@@ -102,6 +102,7 @@ rds = {
 
     no_of_instances = 1
     instance_class = "db.t3.small"
+    allow_subnets = "app"  # we are allowing app_subnets, so that they can start communicating with RDS
   }
 }
 
@@ -118,6 +119,7 @@ elasticache = {
 rabbitmq = {
   main = {
     instance_type = "t3.micro"
+    allow_subnets = "app"
   }
 }
 
@@ -212,6 +214,7 @@ app = {
     allow_app_to = "app"
     alb = "private"
     listener_priority = 14
+    parameters = [ "rds"  ] # this information will be known from project by checking each and every component
   }
 
   # frontend needs web_subnet
